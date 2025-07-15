@@ -4,16 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>No-Build React JSX Demo</title>
+
   <style>
     * {
       font-family: sans-serif;
     }
   </style>
-</head>
-
-<body>
-  <div id="root"></div>
 
   <!-- Import map for React dependencies -->
   <script type="importmap">
@@ -23,31 +21,61 @@
             "react-dom/": "https://esm.sh/react-dom@19.1.0/"
         }
     }
-    </script>
+  </script>
 
-  <!-- Register service worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(registration => {
+  <!-- Register service worker and wait for it to be ready -->
+  <script defer>
+    async function startApp() {
+      if ('serviceWorker' in navigator) {
+        try {
+
+          const registration = await navigator.serviceWorker.register('./service-worker.js');
           console.log('Service Worker registered:', registration);
-        })
-        .catch(error => {
+
+          // Wait for service worker to be ready and controlling this page
+          await navigator.serviceWorker.ready;
+
+          // If there's already a controller, we're good to go
+          // If not, wait for the controllerchange event
+          if (navigator.serviceWorker.controller) {
+            loadReactApp();
+          } else {
+            console.log("here")
+            // in the case of a force-refresh, the cache is disabled, so the service worker will never run.
+            // https://stackoverflow.com/a/49076667/5648839
+            // in this case, we reload the page after a short delay.
+            const reloadTimeout = setTimeout(() => location.reload(), 1000);
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+              clearTimeout(reloadTimeout);
+              loadReactApp();
+            });
+          }
+        } catch (error) {
           console.error('Service Worker registration failed:', error);
-        });
+          // Fallback: try to load app anyway
+          loadReactApp();
+        }
+      } else {
+        console.error('Service Workers not supported');
+        loadReactApp();
+      }
     }
-  </script>
 
-  <!-- Main application entry point -->
-  <script type="module">
-    import React from "react";
-    import { createRoot } from "react-dom/client";
-    import { App } from './components/App.jsx';
+    async function loadReactApp() {
+      // Import the app loader only after service worker is ready
+      // This ensures ALL JSX imports happen after SW is controlling
+      await import('./app-loader.js');
+    }
 
-    const container = document.getElementById('root');
-    const root = createRoot(container);
-    root.render(React.createElement(App));
+    // Start the process
+    startApp();
   </script>
+</head>
+
+<body>
+  <div id="root">
+    <p><strong>Loading...</strong></p>
+  </div>
 </body>
 
 </html>
