@@ -4,6 +4,7 @@ A minimal React application that runs JSX directly in the browser without any bu
 
 ## How It Works
 
+- **Service Worker Registration**: `register-service-worker.js` handles service worker lifecycle and timing
 - **Service Worker**: Intercepts `.js` and `.jsx` file requests and transpiles JSX to JavaScript using Babel standalone
 - **Import Maps**: Loads React 19.1.0 directly from esm.sh CDN
 - **ES Modules**: Uses native browser module support for component imports
@@ -14,10 +15,12 @@ A minimal React application that runs JSX directly in the browser without any bu
 
 ```
 index.html              # Entry point with importmap and service worker
-service-worker.js       # Babel JSX transpiler
-app-loader.js           # Loads and bootstraps the React app after SW is ready
+runtime/
+├── register-service-worker.js  # Service worker registration and startup logic
+├── service-worker.js          # Babel JSX transpiler
+└── app-loader.js              # Loads and bootstraps the React app after SW is ready
 components/
-├── App.jsx            # Main app component
+├── App.jsx            # Main app component  
 └── HelloWorld.jsx     # Example child component
 ```
 
@@ -25,7 +28,8 @@ components/
 
 1. Serve the files from an HTTP server (required for service workers)
 2. Open `index.html` in a modern browser
-3. The service worker will automatically transpile JSX files as they're imported
+3. The registration script will set up the service worker and load the React app once ready
+4. The service worker will automatically transpile JSX files as they're imported
 
 ## Requirements
 
