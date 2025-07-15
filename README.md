@@ -30,14 +30,14 @@ The application follows a carefully orchestrated startup sequence to ensure JSX 
 
 1. **`index.html`** - Entry point with React importmap and service worker registration
 2. **`register-service-worker.js`** - Registers and waits for service worker to be controlling the page
-3. **`service-worker.js`** - Service worker entry point that imports the Babel transpiler. This *must* be in the root directory to have proper
+3. **`service-worker.js`** - Service worker entry point that imports the Babel transpiler. This *must* be in the root directory to have proper scope access
 4. **`babel-react-jsx.js`** - Sets up Babel standalone and handles JSX => JS transformation
 5. **`app-loader.js`** - Loads React and imports JSX components (only after SW is ready)
 6. **`App.jsx`** - Main React application with JSX syntax
 
 ## Usage
 
-1. Serve the files from an HTTP server (required for service workers, won't work with `file://` protocol))
+1. Serve the files from an HTTP server (required for service workers, won't work with `file://` protocol)
 2. Open `index.html` in a **modern** browser with ES modules and service worker support
 3. The system will automatically follow the execution flow to set up JSX transpilation and load the React app
 
