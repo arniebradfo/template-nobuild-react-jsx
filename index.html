@@ -16,10 +16,10 @@
   <!-- Import map for React dependencies -->
   <script type="importmap">
     {
-        "imports": {
-            "react": "https://esm.sh/react@19.1.0",
-            "react-dom/": "https://esm.sh/react-dom@19.1.0/"
-        }
+      "imports": {
+        "react": "https://esm.sh/react@19.1.0",
+        "react-dom/": "https://esm.sh/react-dom@19.1.0/"
+      }
     }
   </script>
 
@@ -40,11 +40,17 @@
           if (navigator.serviceWorker.controller) {
             loadReactApp();
           } else {
-            console.log("here")
-            // in the case of a force-refresh, the cache is disabled, so the service worker will never run.
-            // https://stackoverflow.com/a/49076667/5648839
-            // in this case, we reload the page after a short delay.
-            const reloadTimeout = setTimeout(() => location.reload(), 1000);
+
+            const reloadTimeout = setTimeout(() => {
+              if (performance.navigation?.type === performance.navigation.TYPE_RELOAD) {
+                // in the case of a force-refresh, the cache is disabled, so the service worker will never run.
+                // https://stackoverflow.com/a/49076667/5648839
+                console.log('Refresh detected - Service Worker is disabled when refresh is "forced"');
+                console.log('Attempting reload to enable Service Worker...');
+                location.reload();
+              }
+            }, 500);
+
             navigator.serviceWorker.addEventListener('controllerchange', () => {
               clearTimeout(reloadTimeout);
               loadReactApp();
@@ -52,12 +58,9 @@
           }
         } catch (error) {
           console.error('Service Worker registration failed:', error);
-          // Fallback: try to load app anyway
-          loadReactApp();
         }
       } else {
         console.error('Service Workers not supported');
-        loadReactApp();
       }
     }
 
@@ -74,7 +77,7 @@
 
 <body>
   <div id="root">
-    <p><strong>Loading...</strong></p>
+    <p><strong><small>Loading...</small></strong></p>
   </div>
 </body>
 
