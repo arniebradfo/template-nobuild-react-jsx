@@ -10,6 +10,8 @@ A minimal React application that runs JSX directly in the browser without any bu
 - **Real-time Transpilation**: JSX is transformed on-the-fly in the browser
 - **Deferred App Loading**: The React app is loaded only after the service worker is ready, ensuring all JSX is handled correctly
 
+> Important! Only `.jsx` files are transpiled by babel. `.js` files are not transpiled.
+
 ## Project Structure
 
 ```
